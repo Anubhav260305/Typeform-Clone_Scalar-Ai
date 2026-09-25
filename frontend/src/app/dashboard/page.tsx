@@ -75,15 +75,90 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden">
+      {/* Subtle Formora Background Watermark / Motif */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute -top-8 -right-16 w-[520px] h-[520px] lg:w-[700px] lg:h-[700px] z-0 hidden md:block opacity-[0.035]"
+      >
+        <svg
+          viewBox="0 0 700 700"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full text-slate-900"
+        >
+          {/* Abstract card 1 (tilted layer) */}
+          <rect
+            x="140"
+            y="70"
+            width="420"
+            height="290"
+            rx="28"
+            transform="rotate(10 350 215)"
+            stroke="currentColor"
+            strokeWidth="16"
+          />
+          {/* Abstract card 2 (main foreground form canvas) */}
+          <rect
+            x="100"
+            y="170"
+            width="460"
+            height="330"
+            rx="32"
+            stroke="currentColor"
+            strokeWidth="18"
+          />
+          {/* Form field lines */}
+          <rect x="150" y="230" width="220" height="20" rx="10" fill="currentColor" />
+          <rect x="150" y="275" width="340" height="12" rx="6" fill="currentColor" />
+          {/* Choice options */}
+          <rect
+            x="150"
+            y="320"
+            width="160"
+            height="38"
+            rx="19"
+            stroke="currentColor"
+            strokeWidth="10"
+          />
+          <rect
+            x="330"
+            y="320"
+            width="160"
+            height="38"
+            rx="19"
+            stroke="currentColor"
+            strokeWidth="10"
+          />
+          {/* Button placeholder */}
+          <rect x="150" y="390" width="130" height="42" rx="12" fill="currentColor" />
+          {/* Secondary background shadow card */}
+          <rect
+            x="200"
+            y="310"
+            width="400"
+            height="270"
+            rx="28"
+            transform="rotate(-8 400 445)"
+            stroke="currentColor"
+            strokeWidth="14"
+          />
+        </svg>
+      </div>
+
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Forms</h1>
+            <div className="flex items-center space-x-3">
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Forms</h1>
+              <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                Create. Share. Understand.
+              </span>
+            </div>
             <p className="text-sm text-slate-500 mt-1">
-              Create, manage, and analyze your Typeform-style surveys
+              Create, manage, and analyze your conversational Formora surveys
             </p>
           </div>
           <Link
@@ -174,64 +249,60 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="bg-slate-50 border-t border-slate-100 px-5 py-3 flex items-center justify-between text-xs font-medium">
-                  <div className="flex items-center space-x-3">
-                    <Link
-                      href={`/forms/${form.id}/edit`}
-                      className="text-slate-700 hover:text-blue-600 transition"
-                    >
-                      Edit
-                    </Link>
-                    <span className="text-slate-300">|</span>
-                    <Link
-                      href={`/forms/${form.id}/responses`}
-                      className="text-slate-700 hover:text-blue-600 transition"
-                    >
-                      Responses
-                    </Link>
-                    <span className="text-slate-300">|</span>
-                    <Link
-                      href={`/forms/${form.id}/analytics`}
-                      className="text-slate-700 hover:text-blue-600 transition"
-                    >
-                      Analytics
-                    </Link>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleDuplicate(form.id)}
-                      disabled={actionLoading === form.id}
-                      className="text-slate-600 hover:text-blue-600 cursor-pointer transition font-medium"
-                      title="Duplicate this form"
-                    >
-                      {actionLoading === form.id ? "Duplicating..." : "Duplicate"}
-                    </button>
-                    <span className="text-slate-300">|</span>
-                    <button
-                      onClick={() => handleTogglePublish(form)}
-                      disabled={actionLoading === form.id}
-                      className={`cursor-pointer transition ${
-                        form.status === "published"
-                          ? "text-amber-600 hover:text-amber-700"
-                          : "text-emerald-600 hover:text-emerald-700 font-semibold"
-                      }`}
-                    >
-                      {actionLoading === form.id
-                        ? "..."
-                        : form.status === "published"
-                        ? "Unpublish"
-                        : "Publish"}
-                    </button>
-                    <span className="text-slate-300">|</span>
-                    <button
-                      onClick={() => handleDelete(form.id, form.title)}
-                      disabled={actionLoading === form.id}
-                      className="text-red-500 hover:text-red-700 cursor-pointer transition"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                <div className="bg-slate-50 border-t border-slate-100 px-5 py-3 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs font-medium">
+                  <Link
+                    href={`/forms/${form.id}/edit`}
+                    className="text-slate-700 hover:text-blue-600 transition"
+                  >
+                    Edit
+                  </Link>
+                  <span className="text-slate-300 select-none">|</span>
+                  <Link
+                    href={`/forms/${form.id}/responses`}
+                    className="text-slate-700 hover:text-blue-600 transition"
+                  >
+                    Responses
+                  </Link>
+                  <span className="text-slate-300 select-none">|</span>
+                  <Link
+                    href={`/forms/${form.id}/analytics`}
+                    className="text-slate-700 hover:text-blue-600 transition"
+                  >
+                    Analytics
+                  </Link>
+                  <span className="text-slate-300 select-none">|</span>
+                  <button
+                    onClick={() => handleDuplicate(form.id)}
+                    disabled={actionLoading === form.id}
+                    className="text-slate-700 hover:text-blue-600 cursor-pointer transition font-medium"
+                    title="Duplicate this form"
+                  >
+                    {actionLoading === form.id ? "Duplicating..." : "Duplicate"}
+                  </button>
+                  <span className="text-slate-300 select-none">|</span>
+                  <button
+                    onClick={() => handleTogglePublish(form)}
+                    disabled={actionLoading === form.id}
+                    className={`cursor-pointer transition ${
+                      form.status === "published"
+                        ? "text-amber-600 hover:text-amber-700"
+                        : "text-emerald-600 hover:text-emerald-700 font-semibold"
+                    }`}
+                  >
+                    {actionLoading === form.id
+                      ? "..."
+                      : form.status === "published"
+                      ? "Unpublish"
+                      : "Publish"}
+                  </button>
+                  <span className="text-slate-300 select-none">|</span>
+                  <button
+                    onClick={() => handleDelete(form.id, form.title)}
+                    disabled={actionLoading === form.id}
+                    className="text-red-500 hover:text-red-700 cursor-pointer transition"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}
