@@ -15,9 +15,25 @@ from app.routes.questions import router as questions_router
 from app.routes.responses import router as responses_router
 
 
+try:
+    from seed import seed_database
+except ImportError:
+    try:
+        from backend.seed import seed_database
+    except ImportError:
+        import sys
+        from pathlib import Path
+
+        backend_dir = Path(__file__).resolve().parent.parent
+        if str(backend_dir) not in sys.path:
+            sys.path.insert(0, str(backend_dir))
+        from seed import seed_database
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     init_db()
+    seed_database()
     yield
 
 

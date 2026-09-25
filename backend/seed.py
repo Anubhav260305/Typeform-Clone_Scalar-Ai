@@ -18,6 +18,9 @@ backend_dir = Path(__file__).resolve().parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
+from contextlib import nullcontext
+from sqlalchemy.orm import Session
+
 from app.database.connection import SessionLocal, init_db
 from app.models.answer import Answer
 from app.models.form import Form
@@ -25,11 +28,15 @@ from app.models.question import Question
 from app.models.response import Response
 
 
-def seed_database() -> None:
-    print("Initializing database tables if not already present...")
-    init_db()
+def seed_database(db: Session | None = None) -> None:
+    if db is None:
+        print("Initializing database tables if not already present...")
+        init_db()
+        cm = SessionLocal()
+    else:
+        cm = nullcontext(db)
 
-    with SessionLocal() as db:
+    with cm as db:
         # Form 1: Customer Feedback
         slug_1 = "customer-feedback-demo"
         existing_form_1 = db.query(Form).filter(Form.slug == slug_1).first()
