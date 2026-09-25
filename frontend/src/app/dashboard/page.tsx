@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
+import { useToast } from "@/components/Toast";
 import { deleteForm, duplicateForm, getForms, publishForm, unpublishForm } from "@/lib/api";
 import { Form } from "@/lib/types";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,8 +38,10 @@ export default function DashboardPage() {
       setActionLoading(form.id);
       if (form.status === "published") {
         await unpublishForm(form.id);
+        showToast("Form unpublished", "info");
       } else {
         await publishForm(form.id);
+        showToast("Form published successfully", "success");
       }
       await loadForms();
     } catch (err: unknown) {
@@ -55,6 +59,7 @@ export default function DashboardPage() {
       setActionLoading(formId);
       await deleteForm(formId);
       setForms((prev) => prev.filter((f) => f.id !== formId));
+      showToast("Form deleted", "success");
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to delete form");
     } finally {
@@ -66,6 +71,7 @@ export default function DashboardPage() {
     try {
       setActionLoading(formId);
       const duplicated = await duplicateForm(formId);
+      showToast("Form duplicated successfully", "success");
       router.push(`/forms/${duplicated.id}/edit`);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to duplicate form");

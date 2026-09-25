@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
+import { useToast } from "@/components/Toast";
 import { deleteResponse, getForm, getResponse, getResponses } from "@/lib/api";
 import { Form, QuestionType, ResponseDetail, ResponseRead } from "@/lib/types";
 
@@ -13,6 +14,7 @@ interface PageProps {
 export default function FormResponsesPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const formId = parseInt(resolvedParams.id, 10);
+  const { showToast } = useToast();
 
   const [form, setForm] = useState<Form | null>(null);
   const [responses, setResponses] = useState<ResponseRead[]>([]);
@@ -79,6 +81,7 @@ export default function FormResponsesPage({ params }: PageProps) {
       setActionLoadingId(responseId);
       await deleteResponse(responseId);
       setResponses((prev) => prev.filter((r) => r.id !== responseId));
+      showToast("Response deleted", "success");
       if (selectedResponseId === responseId) {
         setSelectedResponseId(null);
         setSelectedDetail(null);
@@ -95,6 +98,7 @@ export default function FormResponsesPage({ params }: PageProps) {
     const url = `${window.location.origin}/f/${form.slug}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
+    showToast("Link copied to clipboard", "success");
     setTimeout(() => setCopied(false), 2000);
   };
 

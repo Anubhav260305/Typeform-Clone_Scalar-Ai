@@ -3,6 +3,8 @@
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
+import { useToast } from "@/components/Toast";
+import { RespondentView } from "@/components/RespondentView";
 import {
   createQuestion,
   deleteQuestion,
@@ -30,11 +32,19 @@ const QUESTION_TYPES: { type: QuestionType; label: string; icon: string; desc: s
 export default function FormBuilderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const formId = parseInt(id, 10);
+  const { showToast } = useToast();
 
   const [form, setForm] = useState<Form | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Live Preview state
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Drag and Drop state
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Title edit state
   const [titleEditing, setTitleEditing] = useState(false);
@@ -95,8 +105,10 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
       let updated: Form;
       if (form.status === "published") {
         updated = await unpublishForm(form.id);
+        showToast("Form unpublished", "info");
       } else {
         updated = await publishForm(form.id);
+        showToast("Form published successfully", "success");
       }
       setForm(updated);
     } catch (err: unknown) {
@@ -127,6 +139,7 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
       const updatedQuestions = [...questions, newQ];
       setQuestions(updatedQuestions);
       startEditingQuestion(newQ);
+      showToast("Question added", "success");
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to create question");
     }
@@ -154,6 +167,7 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
       });
       setQuestions((prev) => prev.map((q) => (q.id === qId ? updated : q)));
       setEditingQuestionId(null);
+      showToast("Question saved", "success");
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to update question");
     } finally {
@@ -167,6 +181,7 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
       await deleteQuestion(qId);
       setQuestions((prev) => prev.filter((q) => q.id !== qId));
       if (editingQuestionId === qId) setEditingQuestionId(null);
+      showToast("Question deleted", "success");
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to delete question");
     }
@@ -185,9 +200,60 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
     try {
       const reordered = await reorderQuestions(formId, questionIds);
       setQuestions(reordered);
+      showToast("Questions reordered", "success");
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to reorder questions");
     }
+  };
+
+  // Native Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDragLeave = () => {
+    // leave
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === targetIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const updatedQuestions = [...questions];
+    const [movedItem] = updatedQuestions.splice(draggedIndex, 1);
+    updatedQuestions.splice(targetIndex, 0, movedItem);
+
+    setQuestions(updatedQuestions);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+
+    const questionIds = updatedQuestions.map((q) => q.id);
+    try {
+      const reordered = await reorderQuestions(formId, questionIds);
+      setQuestions(reordered);
+      showToast("Questions reordered", "success");
+    } catch (err: unknown) {
+      setQuestions(questions);
+      alert(err instanceof Error ? err.message : "Failed to reorder questions");
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const copyPublicUrl = () => {
@@ -195,6 +261,7 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
     const publicUrl = `${window.location.origin}/f/${form.slug}`;
     navigator.clipboard.writeText(publicUrl);
     setCopiedLink(true);
+    showToast("Link copied to clipboard", "success");
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
@@ -262,7 +329,15 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
             )}
           </div>
 
-          <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
+          <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto justify-end flex-wrap gap-y-2">
+            <button
+              onClick={() => setShowPreview(true)}
+              className="px-3 py-1.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+              title="Preview form respondent experience"
+            >
+              <span>👁</span>
+              <span>Preview</span>
+            </button>
             {form.status === "published" ? (
               <>
                 <button
@@ -336,15 +411,33 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
             {questions.map((q, idx) => (
               <div
                 key={q.id}
+                draggable={editingQuestionId === null}
+                onDragStart={(e) => handleDragStart(e, idx)}
+                onDragOver={(e) => handleDragOver(e, idx)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, idx)}
+                onDragEnd={handleDragEnd}
                 className={`bg-white rounded-xl border transition ${
-                  editingQuestionId === q.id
+                  draggedIndex === idx
+                    ? "opacity-40 border-dashed border-blue-400 bg-blue-50/20"
+                    : dragOverIndex === idx
+                    ? "border-t-4 border-t-blue-500 shadow-md"
+                    : editingQuestionId === q.id
                     ? "border-blue-500 shadow-md ring-2 ring-blue-50"
                     : "border-slate-200 shadow-sm hover:border-slate-300"
                 }`}
               >
                 {/* QUESTION ROW HEADER */}
                 <div className="p-4 sm:p-5 flex items-start justify-between gap-3">
-                  <div className="flex items-start space-x-3 flex-1 min-w-0">
+                  <div className="flex items-start space-x-2 sm:space-x-3 flex-1 min-w-0">
+                    {/* Drag Handle */}
+                    <div
+                      className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 p-1 -ml-1 select-none flex items-center justify-center shrink-0 mt-0.5 rounded hover:bg-slate-100"
+                      title="Drag to reorder"
+                    >
+                      <span className="text-sm font-bold leading-none tracking-tight">⋮⋮</span>
+                    </div>
+
                     <span className="w-6 h-6 rounded bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
@@ -643,6 +736,35 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* LIVE PREVIEW MODAL */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col animate-in fade-in duration-200">
+          {/* Preview Banner */}
+          <div className="bg-blue-600 text-white px-4 py-2.5 text-xs font-semibold flex items-center justify-between shadow-sm z-10 shrink-0">
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+              <span className="tracking-wide">PREVIEW MODE — Experience your form as respondents will see it</span>
+            </div>
+            <button
+              onClick={() => setShowPreview(false)}
+              className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded text-xs transition cursor-pointer flex items-center gap-1 font-medium"
+            >
+              <span>✕</span>
+              <span>Exit Preview</span>
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
+            <RespondentView
+              formTitle={formTitle || form.title}
+              questions={questions}
+              isPreview={true}
+              onClosePreview={() => setShowPreview(false)}
+            />
           </div>
         </div>
       )}
