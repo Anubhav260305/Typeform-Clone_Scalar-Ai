@@ -63,3 +63,31 @@ def test_delete_form(client: TestClient) -> None:
 
     get_res = client.get(f"/api/forms/{form_id}")
     assert get_res.status_code == 404
+
+
+def test_cors_headers_allowed_origins(client: TestClient) -> None:
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://typeform-clone-scalar-ai.vercel.app",
+    ]
+    for origin in allowed_origins:
+        res = client.options(
+            "/api/forms",
+            headers={
+                "Origin": origin,
+                "Access-Control-Request-Method": "GET",
+            },
+        )
+        assert res.headers.get("access-control-allow-origin") == origin
+
+    # Disallowed origin should not receive CORS headers
+    disallowed_res = client.options(
+        "/api/forms",
+        headers={
+            "Origin": "https://unauthorized-domain.com",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert disallowed_res.headers.get("access-control-allow-origin") is None
+
