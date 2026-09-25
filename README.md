@@ -20,15 +20,20 @@ The project emphasizes robust software engineering practices, including a layere
   6. `number` (Numeric input with optional min/max constraints)
   7. `yes_no` (Boolean binary selection with hotkeys)
   8. `rating` (Configurable scale rating, default 1 to 5 stars)
-- **Question Ordering & Reordering**: Up/down reordering API and UI preserving order indices.
+- **Form Templates**: 1-click creation with pre-configured schemas for Customer Feedback, Event Registration, and Employee Satisfaction, alongside Blank Form.
+- **Duplicate Form**: 1-click cloning of forms and their complete question hierarchies into a fresh draft with zero initial responses.
+- **Native Drag-and-Drop Reordering**: Interactive builder reordering with visual grip handles (`⋮⋮`), drop-target indicators, and atomic persistence, alongside accessibility buttons.
+- **Live Preview**: Real-time modal preview in the form builder simulating respondent flow with current draft questions without persisting test submissions.
 - **Question Configuration**: Customizable titles, optional descriptions, required/optional flags, and type-specific settings.
 - **Draft & Published Lifecycle**: Forms start in `draft` mode. Publishing enforces that at least one question exists.
 - **Public Shareable Forms**: Published forms generate stable, slugified public links (`/f/[slug]`).
 - **Typeform-Style Respondent Experience**:
   - Exactly one question displayed at a time with smooth transitions.
   - Progress bar and completion percentage tracking.
-  - Keyboard navigation hints (`Enter ↵`, `Shift + Enter`, `A/B/C`, `Y/N`, numeric keys `1-5`).
+  - Bidirectional arrow-key navigation (`ArrowDown`/`ArrowRight` to advance, `ArrowUp`/`ArrowLeft` to go back) with protection while typing in text inputs.
+  - Keyboard navigation shortcuts (`Enter ↵`, `A/B/C/D`, `Y/N`, numeric keys `1-5`).
   - Strict client-side and server-side validation for required fields before advancing.
+- **Toast Notifications**: Lightweight, auto-dismissing notifications for publishing, unpublishing, duplication, question updates, response deletions, and clipboard copying.
 - **Atomic Response Submission**:
   - Submits all question answers in a single database transaction.
   - If any answer validation fails, the entire transaction rolls back cleanly.
@@ -211,6 +216,7 @@ HTTP Request
 - `GET /api/forms/{id}` - Retrieve form metadata and response count.
 - `PATCH /api/forms/{id}` - Update form title or status.
 - `DELETE /api/forms/{id}` - Delete a form, its questions, and responses.
+- `POST /api/forms/{form_id}/duplicate` - Duplicate a form and its questions into a new draft.
 
 ### Publishing & Public Forms
 - `POST /api/forms/{id}/publish` - Publish a form (validates $\ge 1$ question).
@@ -272,7 +278,7 @@ The backend API will be available at: `http://localhost:8000`
 Swagger API Documentation: `http://localhost:8000/docs`
 
 ### Seed Demo Data
-To populate the database with realistic sample forms (published Customer Feedback and Event Registration surveys), mixed question types, and pre-filled respondent submission data:
+From the repository root (with the virtual environment activated), populate the database with realistic sample forms (published Customer Feedback and Event Registration surveys), mixed question types, and pre-filled respondent submission data:
 
 ```bash
 python backend/seed.py
@@ -300,10 +306,9 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
 ### 3. Running Backend Tests
-From the project root or `backend` folder:
-```powershell
-# Run full pytest suite with verbose output
-backend\venv\Scripts\pytest -v backend/tests
+From the repository root, with the virtual environment activated:
+```bash
+pytest -v backend/tests
 ```
 
 ---
