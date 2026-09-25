@@ -20,9 +20,9 @@ The project emphasizes robust software engineering practices, including a layere
   6. `number` (Numeric input with optional min/max constraints)
   7. `yes_no` (Boolean binary selection with hotkeys)
   8. `rating` (Configurable scale rating, default 1 to 5 stars)
-- **Form Templates**: 1-click creation with pre-configured schemas for Customer Feedback, Event Registration, and Employee Satisfaction, alongside Blank Form.
+- **Form Templates**: 1-click creation with pre-configured schemas for Blank Form, Customer Feedback, Event Registration, and Employee Satisfaction.
 - **Duplicate Form**: 1-click cloning of forms and their complete question hierarchies into a fresh draft with zero initial responses.
-- **Native Drag-and-Drop Reordering**: Interactive builder reordering with visual grip handles (`⋮⋮`), drop-target indicators, and atomic persistence, alongside accessibility buttons.
+- **Native HTML5 Drag-and-Drop Reordering**: Interactive builder reordering with visual grip handles (`⋮⋮`), drop-target indicators, and atomic persistence, alongside existing Move Up / Move Down accessibility controls.
 - **Live Preview**: Real-time modal preview in the form builder simulating respondent flow with current draft questions without persisting test submissions.
 - **Question Configuration**: Customizable titles, optional descriptions, required/optional flags, and type-specific settings.
 - **Draft & Published Lifecycle**: Forms start in `draft` mode. Publishing enforces that at least one question exists.
@@ -31,7 +31,7 @@ The project emphasizes robust software engineering practices, including a layere
   - Exactly one question displayed at a time with smooth transitions.
   - Progress bar and completion percentage tracking.
   - Bidirectional arrow-key navigation (`ArrowDown`/`ArrowRight` to advance, `ArrowUp`/`ArrowLeft` to go back) with protection while typing in text inputs.
-  - Keyboard navigation shortcuts (`Enter ↵`, `A/B/C/D`, `Y/N`, numeric keys `1-5`).
+  - Keyboard shortcuts (`Enter ↵`, `A/B/C/D` for choices, `Y/N` for boolean, numeric keys `1-5` for ratings).
   - Strict client-side and server-side validation for required fields before advancing.
 - **Toast Notifications**: Lightweight, auto-dismissing notifications for publishing, unpublishing, duplication, question updates, response deletions, and clipboard copying.
 - **Atomic Response Submission**:
@@ -278,12 +278,15 @@ The backend API will be available at: `http://localhost:8000`
 Swagger API Documentation: `http://localhost:8000/docs`
 
 ### Seed Demo Data
-From the repository root (with the virtual environment activated), populate the database with realistic sample forms (published Customer Feedback and Event Registration surveys), mixed question types, and pre-filled respondent submission data:
+The application includes realistic sample forms (published Customer Feedback and Event Registration surveys) with mixed question types and pre-filled respondent submissions.
+
+- **Automatic Startup Seeding**: When the backend starts up, demo data is automatically seeded if the database is fresh or empty (e.g. after container redeployment on Render). Startup seeding is idempotent: if demo forms already exist, creation is skipped, and existing user-created forms and responses are never overwritten or deleted.
+- **Manual Seeding**: You can also seed or verify sample data at any time from the repository root (with the virtual environment activated):
 
 ```bash
 python backend/seed.py
 ```
-*(The seed script is safe and idempotent: it creates demo forms and responses on a fresh database and skips creation without duplicating or overwriting existing user data on rerun.)*
+*(Safe and idempotent: skips creation if demo forms are already present, without duplicating demo data or altering user data.)*
 
 ### 2. Frontend Setup
 In a new terminal, from the repository root:
@@ -337,7 +340,7 @@ pytest -v backend/tests
 
 ## Testing
 
-- **Backend Test Suite**: 67 automated tests covering:
+- **Backend Test Suite**: 70 automated tests covering:
   - Form lifecycle and duplicate slug deduplication
   - Question CRUD, validation for all 8 types, and atomic reordering
   - Form publishing rules and public slug exposure
@@ -345,7 +348,8 @@ pytest -v backend/tests
   - Response cascade deletions
   - Analytics calculation (averages, min/max, distributions)
   - Production CORS preflight and origin verification
-- **Test Status**: **67 passed, 0 failed** (`pytest backend/tests`).
+  - Automatic startup database seeding, idempotency, and user-data preservation
+- **Test Status**: **70 passed, 0 failed** (`pytest backend/tests`).
 - **Frontend Build**: Verified clean production compilation (`npm run build`) with zero TypeScript or routing errors.
 
 ---
