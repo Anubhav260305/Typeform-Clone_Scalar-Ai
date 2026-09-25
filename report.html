@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Backend Architecture & Codebase Audit Report - Typeform Clone</title>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 12mm 14mm 12mm 14mm;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    background-color: #ffffff;
+    line-height: 1.45;
+    font-size: 12px;
+  }
+
+  .page-container {
+    page-break-after: always;
+    min-height: 98vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .page-container:last-child {
+    page-break-after: auto;
+  }
+
+  .content-block {
+    flex: 1;
+  }
+
+  .header {
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+  }
+
+  .badge-primary { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .badge-success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .badge-warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+  .badge-danger  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+  h1 {
+    font-size: 21px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 4px;
+    margin-bottom: 2px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 11px;
+  }
+
+  .meta-item strong {
+    display: block;
+    color: #475569;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  h2 {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #0f172a;
+    border-left: 3.5px solid #2563eb;
+    padding-left: 8px;
+    margin-top: 14px;
+    margin-bottom: 8px;
+  }
+
+  .arch-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 9px 12px;
+    border-radius: 6px;
+    font-family: "Consolas", monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    margin: 8px 0 12px 0;
+  }
+
+  .arch-flow span {
+    color: #38bdf8;
+  }
+
+  .arch-flow .arrow {
+    color: #94a3b8;
+    margin: 0 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 10px 0;
+    font-size: 11px;
+  }
+
+  th, td {
+    padding: 6px 8px;
+    text-align: left;
+    border: 1px solid #e2e8f0;
+    vertical-align: middle;
+  }
+
+  th {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  tr:nth-child(even) td {
+    background: #fcfcfd;
+  }
+
+  code {
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 10.5px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .card {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 9px 12px;
+    margin-bottom: 8px;
+    background: #ffffff;
+  }
+
+  .card-warning {
+    border-left: 3.5px solid #f59e0b;
+    background: #fffdfa;
+  }
+
+  .card-danger {
+    border-left: 3.5px solid #ef4444;
+    background: #fffcfc;
+  }
+
+  .card-info {
+    border-left: 3.5px solid #2563eb;
+    background: #f8fbff;
+  }
+
+  .card-success {
+    border-left: 3.5px solid #10b981;
+    background: #f6fdf9;
+  }
+
+  .card-title {
+    font-weight: 700;
+    font-size: 12px;
+    color: #0f172a;
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-body {
+    font-size: 11px;
+    color: #334155;
+    line-height: 1.4;
+  }
+
+  .footer-bar {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 6px;
+    margin-top: 10px;
+    font-size: 9.5px;
+    color: #94a3b8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ==================== PAGE 1 ==================== -->
+  <div class="page-container">
+    <div class="content-block">
+      <div class="header">
+        <span class="badge badge-primary">SDE Assignment Technical Evaluation</span>
+        <h1>Typeform Clone: Codebase & Backend Audit Report</h1>
+        <div class="subtitle">Architectural Inspection, Database Verification & Implementation Gap Analysis</div>
+        
+        <div class="meta-grid">
+          <div class="meta-item">
+            <strong>Repository</strong>
+            Typeform-Clone_Scalar-Ai
+          </div>
+          <div class="meta-item">
+            <strong>Framework / ORM</strong>
+            FastAPI 0.141 / SQLAlchemy 2.1
+          </div>
+          <div class="meta-item">
+            <strong>Database</strong>
+            SQLite (backend/forms.db)
+          </div>
+          <div class="meta-item">
+            <strong>Audit Date</strong>
+            September 25, 2026
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-info" style="margin-bottom: 12px;">
+        <div class="card-title">Executive Summary</div>
+        <div class="card-body">
+          The existing backend adheres strictly to the prescribed 5-tier architecture: <code>Route &rarr; Service &rarr; Repository &rarr; SQLAlchemy ORM &rarr; SQLite</code>. The core form management flow (Create, Read, List, Update title, Delete) and collision-resistant slug generation are operational. However, the repository contains <strong>no question models or endpoints</strong>, <strong>no response submission or storage logic</strong>, <strong>no publish/unpublish workflow</strong>, <strong>no analytics aggregation</strong>, and <strong>no frontend application</strong>.
+        </div>
+      </div>
+
+      <h2>A. Current Architecture</h2>
+      <div class="arch-flow">
+        <span>Route</span> <span class="arrow">&rarr;</span>
+        <span>Service</span> <span class="arrow">&rarr;</span>
+        <span>Repository</span> <span class="arrow">&rarr;</span>
+        <span>SQLAlchemy ORM</span> <span class="arrow">&rarr;</span>
+        <span>SQLite</span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 22%;">Layer / Subsystem</th>
+            <th style="width: 33%;">Source File(s)</th>
+            <th style="width: 45%;">Design Assessment & Modularity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Route Layer</strong></td>
+            <td><code>app/routes/forms.py</code></td>
+            <td>Uses FastAPI <code>APIRouter</code>. <strong>Zero direct DB queries</strong>; strictly calls <code>FormService</code> injected via <code>Depends(get_form_service)</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>Service Layer</strong></td>
+            <td><code>app/services/form_service.py</code></td>
+            <td>Instantiates <code>FormRepository(db)</code>. Owns business logic: slugification, uniqueness enforcement (<code>_unique_slug</code>), and domain exceptions.</td>
+          </tr>
+          <tr>
+            <td><strong>Repository Layer</strong></td>
+            <td><code>app/repositories/form_repository.py</code></td>
+            <td>Encapsulates all SQLAlchemy queries: <code>create</code>, <code>get_by_id</code>, <code>get_by_slug</code>, <code>get_all</code>, <code>update</code>, <code>delete</code>. Clean CRUD abstraction.</td>
+          </tr>
+          <tr>
+            <td><strong>ORM & Models</strong></td>
+            <td><code>app/models/form.py</code><br><code>app/database/base.py</code></td>
+            <td>Modern SQLAlchemy 2.0 <code>DeclarativeBase</code> with typed <code>Mapped[...]</code> and <code>mapped_column(...)</code>. Clean column constraints.</td>
+          </tr>
+          <tr>
+            <td><strong>Session Management</strong></td>
+            <td><code>app/database/connection.py</code></td>
+            <td><code>SessionLocal = sessionmaker(...)</code>. <code>get_db()</code> generator dependency yields session and guarantees <code>db.close()</code> in <code>finally</code> block.</td>
+          </tr>
+          <tr>
+            <td><strong>Validation & Errors</strong></td>
+            <td><code>app/schemas/form.py</code><br><code>app/core/exceptions.py</code></td>
+            <td>Pydantic v2 schemas (<code>FormCreate</code>, <code>FormUpdate</code>, <code>FormRead</code>). Custom <code>AppException</code> caught by global exception handler in <code>main.py</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>CORS & Settings</strong></td>
+            <td><code>app/core/config.py</code><br><code>app/main.py</code></td>
+            <td><code>CORSMiddleware</code> configured with allowed origins for <code>localhost:3000</code> and <code>127.0.0.1:3000</code>. Pydantic <code>BaseSettings</code> with <code>.env</code> support.</td>
+          </tr>
+          <tr>
+            <td><strong>Runtime Status</strong></td>
+            <td>FastAPI Lifespan</td>
+            <td><strong>Verified active and operational</strong>. Imports cleanly; ASGI tests to <code>/health</code> and <code>/api/forms</code> return HTTP 200 OK.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer-bar">
+      <span>Typeform-Clone_Scalar-Ai &bull; Codebase Audit</span>
+      <span>Page 1 of 4</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2 ==================== -->
+  <div class="page-container">
+    <div class="content-block">
+      <h2>B. Current Database Schema</h2>
+      <p style="margin-bottom: 8px; color: #475569;">The SQLite database (<code>backend/forms.db</code>) currently contains exactly one active table: <code>forms</code>.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 15%;">Column</th>
+            <th style="width: 18%;">SQL Type</th>
+            <th style="width: 12%;">Nullable</th>
+            <th style="width: 25%;">Defaults / Constraints</th>
+            <th style="width: 30%;">Description & Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td><code>INTEGER</code></td>
+            <td>No</td>
+            <td><code>PRIMARY KEY AUTOINCREMENT</code></td>
+            <td>Unique auto-incrementing form identifier</td>
+          </tr>
+          <tr>
+            <td><code>title</code></td>
+            <td><code>VARCHAR(255)</code></td>
+            <td>No</td>
+            <td>None (Validated 1-255 chars)</td>
+            <td>Display title of the form</td>
+          </tr>
+          <tr>
+            <td><code>slug</code></td>
+            <td><code>VARCHAR(255)</code></td>
+            <td>No</td>
+            <td><code>UNIQUE, INDEXED</code></td>
+            <td>URL-safe slug for shareable access</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td><code>VARCHAR(50)</code></td>
+            <td>No</td>
+            <td><code>'draft'</code></td>
+            <td>Form status lifecycle state (<code>draft</code>, <code>published</code>)</td>
+          </tr>
+          <tr>
+            <td><code>created_at</code></td>
+            <td><code>DATETIME</code></td>
+            <td>No</td>
+            <td><code>CURRENT_TIMESTAMP</code> / <code>utc_now</code></td>
+            <td>UTC creation timestamp</td>
+          </tr>
+          <tr>
+            <td><code>updated_at</code></td>
+            <td><code>DATETIME</code></td>
+            <td>No</td>
+            <td><code>CURRENT_TIMESTAMP</code> / <code>onupdate</code></td>
+            <td>UTC last modification timestamp</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="card card-warning" style="margin-top: 6px; margin-bottom: 16px;">
+        <div class="card-title">
+          <span>Schema Deficit Notice</span>
+          <span class="badge badge-warning">Missing Tables</span>
+        </div>
+        <div class="card-body">
+          The database currently lacks models and tables for <code>questions</code> (with question types, settings, and display ordering), <code>question_options</code> (for multiple choice and dropdown selections), <code>responses</code> (submission metadata), and <code>answers</code> (individual question responses).
+        </div>
+      </div>
+
+      <h2>C. Current API Endpoints</h2>
+      <p style="margin-bottom: 8px; color: #475569;">All currently registered endpoints in <code>backend/app/main.py</code> and <code>backend/app/routes/forms.py</code>:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 12%;">Method</th>
+            <th style="width: 26%;">Route Path</th>
+            <th style="width: 22%;">Payload Body</th>
+            <th style="width: 15%;">HTTP Status</th>
+            <th style="width: 25%;">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-success">GET</span></td>
+            <td><code>/health</code></td>
+            <td>None</td>
+            <td><code>200 OK</code></td>
+            <td>Service health check returning <code>{"status": "ok"}</code></td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-primary">POST</span></td>
+            <td><code>/api/forms</code></td>
+            <td><code>{"title": str}</code></td>
+            <td><code>201 Created</code></td>
+            <td>Creates form, generates unique slug, sets status to <code>draft</code></td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-success">GET</span></td>
+            <td><code>/api/forms</code></td>
+            <td>None</td>
+            <td><code>200 OK</code></td>
+            <td>Returns list of all forms ordered by <code>created_at DESC</code></td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-success">GET</span></td>
+            <td><code>/api/forms/{id}</code></td>
+            <td>None</td>
+            <td><code>200 / 404</code></td>
+            <td>Retrieves a single form by ID (raises <code>NotFoundError</code> if absent)</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-warning">PATCH</span></td>
+            <td><code>/api/forms/{id}</code></td>
+            <td><code>{"title": str}</code></td>
+            <td><code>200 / 404</code></td>
+            <td>Updates form title by ID</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-danger">DELETE</span></td>
+            <td><code>/api/forms/{id}</code></td>
+            <td>None</td>
+            <td><code>204 No Content</code></td>
+            <td>Deletes form record by ID</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer-bar">
+      <span>Typeform-Clone_Scalar-Ai &bull; Codebase Audit</span>
+      <span>Page 2 of 4</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 3 ==================== -->
+  <div class="page-container">
+    <div class="content-block">
+      <h2>D & E. Feature Comparison Matrix</h2>
+      <p style="margin-bottom: 8px; color: #475569;">Audit of existing functionality against core SDE assignment requirements:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 28%;">Requirement</th>
+            <th style="width: 16%;">Current Status</th>
+            <th style="width: 56%;">Audit Findings & Implementation Gap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Form CRUD & Title</strong></td>
+            <td><span class="badge badge-success">Implemented</span></td>
+            <td>Create, read, list, rename title, and delete form endpoints are operational.</td>
+          </tr>
+          <tr>
+            <td><strong>Publish / Unpublish</strong></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td><code>status</code> column exists in DB, but cannot be updated via <code>FormUpdate</code> or dedicated API routes.</td>
+          </tr>
+          <tr>
+            <td><strong>Ordered Questions</strong></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>No <code>Question</code> model, schema, repository, or service exists.</td>
+          </tr>
+          <tr>
+            <td><strong>8 Question Types</strong><br><small style="color:#64748b;">short text, long text, multiple choice, dropdown, email, number, yes/no, rating</small></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>No type enumeration, choice configuration, or question-specific schemas are defined.</td>
+          </tr>
+          <tr>
+            <td><strong>Question Settings</strong><br><small style="color:#64748b;">required, help text, choices</small></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>No database fields or validation for <code>required</code>, <code>description</code>, or options.</td>
+          </tr>
+          <tr>
+            <td><strong>Question Reordering</strong></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>No <code>order_index</code> column or batch reordering endpoint implemented.</td>
+          </tr>
+          <tr>
+            <td><strong>Public Shareable Form URL</strong></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>Form has a <code>slug</code>, but no public route exists to serve forms to respondents by slug.</td>
+          </tr>
+          <tr>
+            <td><strong>One-Question-at-a-Time Flow</strong></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>Backend provides no respondent payload formatting for progressive navigation.</td>
+          </tr>
+          <tr>
+            <td><strong>Response Persistence</strong></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>No models or tables (<code>responses</code>, <code>answers</code>) to store respondent submissions.</td>
+          </tr>
+          <tr>
+            <td><strong>Client & Server Validation</strong></td>
+            <td><span class="badge badge-warning">Partial</span></td>
+            <td>Only Form title length is validated. Question answer validation (e.g. email regex, choice match) is missing.</td>
+          </tr>
+          <tr>
+            <td><strong>Individual Response Viewing</strong></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>No endpoints to view submitted responses and answer breakdowns.</td>
+          </tr>
+          <tr>
+            <td><strong>Basic Response Statistics</strong></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>No aggregation endpoints for submission counts, choice distributions, or rating averages.</td>
+          </tr>
+          <tr>
+            <td><strong>Seed Data</strong></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>No script to pre-populate sample forms with all 8 question types and mock responses.</td>
+          </tr>
+          <tr>
+            <td><strong>Frontend Application</strong></td>
+            <td><span class="badge badge-danger">Missing</span></td>
+            <td>Workspace currently contains only the <code>backend/</code> folder; frontend is not yet created.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer-bar">
+      <span>Typeform-Clone_Scalar-Ai &bull; Codebase Audit</span>
+      <span>Page 3 of 4</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 4 ==================== -->
+  <div class="page-container">
+    <div class="content-block">
+      <h2>F. Architectural Problems & Risks</h2>
+
+      <div class="card card-warning">
+        <div class="card-title">
+          <span>1. Premature Commits in Repository Layer (Unit of Work Risk)</span>
+          <span class="badge badge-warning">Medium Risk</span>
+        </div>
+        <div class="card-body">
+          <code>FormRepository.create()</code>, <code>update()</code>, and <code>delete()</code> call <code>self.db.commit()</code> directly. When composite operations are introduced (such as creating a form with questions, or saving a submission with multiple answers), committing inside individual repository methods breaks atomic transactions. If step 2 fails, step 1 cannot be rolled back.<br>
+          <strong>Mitigation:</strong> Keep repository methods for staging changes, and coordinate commit/rollback boundaries in the service layer or via a transactional context manager.
+        </div>
+      </div>
+
+      <div class="card card-warning">
+        <div class="card-title">
+          <span>2. SQLite Foreign Key Enforcement & Cascading Deletes</span>
+          <span class="badge badge-warning">Medium Risk</span>
+        </div>
+        <div class="card-body">
+          SQLite disables foreign key enforcement by default unless explicitly activated via <code>PRAGMA foreign_keys = ON;</code> upon engine connection. Without this and explicit SQLAlchemy <code>cascade="all, delete-orphan"</code>, deleting a form could leave orphaned questions and responses.<br>
+          <strong>Mitigation:</strong> Add a SQLite <code>connect</code> event listener in <code>connection.py</code> to execute <code>PRAGMA foreign_keys = ON</code>, and declare cascade options on parent relationships.
+        </div>
+      </div>
+
+      <div class="card card-info">
+        <div class="card-title">
+          <span>3. Rigid FormUpdate Schema & Testing Dependencies</span>
+          <span class="badge badge-primary">Design Consideration</span>
+        </div>
+        <div class="card-body">
+          <code>FormUpdate</code> only permits <code>title: str</code>. Updating form status (publish / unpublish) or description will require broadening the schema to optional fields. Additionally, <code>requirements.txt</code> is missing <code>httpx</code> and <code>pytest</code>, causing <code>fastapi.testclient.TestClient</code> to fail during test execution.
+        </div>
+      </div>
+
+      <h2>G. Recommended Next Steps & Roadmap</h2>
+
+      <div class="card card-success">
+        <div class="card-title">
+          <span>Phase 1: Expand SQLAlchemy Models & Database Schema</span>
+          <span class="badge badge-success">Data Layer</span>
+        </div>
+        <div class="card-body">
+          Create <code>Question</code> model (with <code>title</code>, <code>description</code>, <code>type</code>, <code>required</code>, <code>order_index</code>, <code>options</code> as JSON/relationship) and <code>Response</code> / <code>Answer</code> models with cascading delete rules. Enable foreign keys in SQLite.
+        </div>
+      </div>
+
+      <div class="card card-success">
+        <div class="card-title">
+          <span>Phase 2: Question & Response Repositories & Services</span>
+          <span class="badge badge-success">Logic Layer</span>
+        </div>
+        <div class="card-body">
+          Add <code>QuestionRepository</code>, <code>QuestionService</code> (handling position indexing, reordering, and type validation), and <code>ResponseRepository</code>, <code>ResponseService</code> (handling atomic submission, answer validation per type, and basic analytics aggregation). Add publish/unpublish methods to <code>FormService</code>.
+        </div>
+      </div>
+
+      <div class="card card-success">
+        <div class="card-title">
+          <span>Phase 3: Expose REST Endpoints</span>
+          <span class="badge badge-success">API Layer</span>
+        </div>
+        <div class="card-body">
+          Implement builder routes (question CRUD & reordering), public respondent routes (<code>GET /api/public/forms/{slug}</code> and <code>POST /api/public/forms/{slug}/submit</code>), and analytics routes (<code>GET /api/forms/{form_id}/responses</code> and <code>/analytics</code>).
+        </div>
+      </div>
+
+      <div class="card card-success">
+        <div class="card-title">
+          <span>Phase 4: Seed Script & Verification</span>
+          <span class="badge badge-success">Verification</span>
+        </div>
+        <div class="card-body">
+          Write a clean seed script populating sample forms with all 8 question types and test submissions for rapid verification and evaluation.
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bar">
+      <span>Typeform-Clone_Scalar-Ai &bull; Codebase Audit</span>
+      <span>Page 4 of 4</span>
+    </div>
+  </div>
+
+</body>
+</html>
