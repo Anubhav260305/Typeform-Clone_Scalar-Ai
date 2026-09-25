@@ -435,7 +435,7 @@ export default function PublicRespondentPage({
       {/* FOOTER */}
       <footer className="max-w-2xl w-full mx-auto px-6 py-4 flex items-center justify-between text-xs text-slate-600">
         <div>{form.title}</div>
-        <div className="font-medium text-slate-500">Powered by Formora</div>
+        <div className="font-medium text-slate-500">Powered by Typeform Clone</div>
       </footer>
     </div>
   );

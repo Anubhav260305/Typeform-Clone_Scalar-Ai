@@ -271,6 +271,14 @@ python -m uvicorn app.main:app --port 8000 --reload
 The backend API will be available at: `http://localhost:8000`  
 Swagger API Documentation: `http://localhost:8000/docs`
 
+### Seed Demo Data
+To populate the database with realistic sample forms (published Customer Feedback and Event Registration surveys), mixed question types, and pre-filled respondent submission data:
+
+```bash
+python backend/seed.py
+```
+*(The seed script is safe and idempotent: it creates demo forms and responses on a fresh database and skips creation without duplicating or overwriting existing user data on rerun.)*
+
 ### 2. Frontend Setup
 In a new terminal, from the repository root:
 
@@ -324,7 +332,7 @@ backend\venv\Scripts\pytest -v backend/tests
 
 ## Testing
 
-- **Backend Test Suite**: 63 automated tests covering:
+- **Backend Test Suite**: 67 automated tests covering:
   - Form lifecycle and duplicate slug deduplication
   - Question CRUD, validation for all 8 types, and atomic reordering
   - Form publishing rules and public slug exposure
@@ -332,7 +340,7 @@ backend\venv\Scripts\pytest -v backend/tests
   - Response cascade deletions
   - Analytics calculation (averages, min/max, distributions)
   - Production CORS preflight and origin verification
-- **Test Status**: **63 passed, 0 failed** (`pytest backend/tests`).
+- **Test Status**: **67 passed, 0 failed** (`pytest backend/tests`).
 - **Frontend Build**: Verified clean production compilation (`npm run build`) with zero TypeScript or routing errors.
 
 ---

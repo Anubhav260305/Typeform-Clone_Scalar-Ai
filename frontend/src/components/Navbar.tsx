@@ -115,9 +115,9 @@ export function Navbar({ formTitle, formId, currentTab, status }: NavbarProps) {
                 className="text-lg font-bold tracking-tight text-slate-900 flex items-center space-x-2 hover:opacity-80 transition"
               >
                 <span className="w-7 h-7 rounded bg-blue-600 text-white flex items-center justify-center text-xs font-black">
-                  F
+                  T
                 </span>
-                <span>Formora</span>
+                <span>Typeform Clone</span>
               </Link>
 
               {formTitle && formId && (
@@ -231,7 +231,7 @@ export function Navbar({ formTitle, formId, currentTab, status }: NavbarProps) {
             {/* Modal Header */}
             <div className="mb-6">
               <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base font-black mb-3">
-                F
+                T
               </div>
               <h3 className="text-xl font-bold tracking-tight text-slate-900">
                 Create your account

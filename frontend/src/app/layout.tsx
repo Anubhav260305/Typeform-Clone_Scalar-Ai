@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Formora — Create. Share. Understand.",
+  title: "Typeform Clone — Create. Share. Understand.",
   description: "Conversational, beautifully interactive forms and real-time response analytics.",
 };
 

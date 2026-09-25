@@ -76,7 +76,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden">
-      {/* Subtle Formora Background Watermark / Motif */}
+      {/* Subtle Background Watermark / Motif */}
       <div
         aria-hidden="true"
         className="pointer-events-none select-none absolute -top-8 -right-16 w-[520px] h-[520px] lg:w-[700px] lg:h-[700px] z-0 hidden md:block opacity-[0.035]"
@@ -158,7 +158,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <p className="text-sm text-slate-500 mt-1">
-              Create, manage, and analyze your conversational Formora surveys
+              Create, manage, and analyze your Typeform-style surveys
             </p>
           </div>
           <Link
@@ -309,6 +309,28 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Dashboard Footer */}
+      <footer className="border-t border-slate-200/80 bg-slate-50/50 relative z-10 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <span>© 2026 Typeform Clone. All rights reserved.</span>
+              <span className="hidden sm:inline text-slate-300 select-none">·</span>
+              <span className="text-[11px] text-slate-400">Demo / Assessment Project</span>
+            </div>
+            <div className="flex items-center space-x-3 text-xs text-slate-500">
+              <span className="hover:text-slate-700 cursor-default transition">About</span>
+              <span className="text-slate-300 select-none">·</span>
+              <span className="hover:text-slate-700 cursor-default transition">Privacy</span>
+              <span className="text-slate-300 select-none">·</span>
+              <span className="hover:text-slate-700 cursor-default transition">Cookies</span>
+              <span className="text-slate-300 select-none">·</span>
+              <span className="hover:text-slate-700 cursor-default transition">Terms</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
