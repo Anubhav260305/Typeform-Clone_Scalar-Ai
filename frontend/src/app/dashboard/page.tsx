@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
-import { deleteForm, getForms, publishForm, unpublishForm } from "@/lib/api";
+import { deleteForm, duplicateForm, getForms, publishForm, unpublishForm } from "@/lib/api";
 import { Form } from "@/lib/types";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +61,18 @@ export default function DashboardPage() {
       setActionLoading(null);
     }
   };
+
+  const handleDuplicate = async (formId: number) => {
+    try {
+      setActionLoading(formId);
+      const duplicated = await duplicateForm(formId);
+      router.push(`/forms/${duplicated.id}/edit`);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to duplicate form");
+      setActionLoading(null);
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -185,6 +199,15 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleDuplicate(form.id)}
+                      disabled={actionLoading === form.id}
+                      className="text-slate-600 hover:text-blue-600 cursor-pointer transition font-medium"
+                      title="Duplicate this form"
+                    >
+                      {actionLoading === form.id ? "Duplicating..." : "Duplicate"}
+                    </button>
+                    <span className="text-slate-300">|</span>
                     <button
                       onClick={() => handleTogglePublish(form)}
                       disabled={actionLoading === form.id}

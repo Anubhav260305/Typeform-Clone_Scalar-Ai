@@ -97,6 +97,13 @@ export async function unpublishForm(id: number): Promise<Form> {
   });
 }
 
+export async function duplicateForm(id: number): Promise<Form> {
+  return apiFetch<Form>(`/api/forms/${id}/duplicate`, {
+    method: "POST",
+  });
+}
+
+
 // ==================== QUESTIONS API ====================
 
 export async function getQuestions(formId: number): Promise<Question[]> {

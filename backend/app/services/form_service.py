@@ -1,3 +1,4 @@
+import copy
 import re
 import unicodedata
 
@@ -5,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.exceptions import AppException, NotFoundError
 from app.models.form import Form
+from app.models.question import Question
 from app.repositories.form_repository import FormRepository
 from app.repositories.question_repository import QuestionRepository
 from app.schemas.form import FormCreate, FormUpdate, PublicFormRead, PublicQuestionRead
@@ -51,6 +53,32 @@ class FormService:
         form = self.get_form(form_id)
         self.repository.delete(form)
         self.db.commit()
+
+    def duplicate_form(self, form_id: int) -> Form:
+        original = self.get_form(form_id)
+        new_title = f"{original.title} (Copy)"
+        new_slug = self._unique_slug(new_title)
+
+        new_form = Form(title=new_title, slug=new_slug, status="draft")
+        self.repository.create(new_form)
+
+        original_questions = self.question_repository.get_by_form(form_id)
+        for q in original_questions:
+            copied_question = Question(
+                form_id=new_form.id,
+                type=q.type,
+                title=q.title,
+                description=q.description,
+                required=q.required,
+                order_index=q.order_index,
+                settings=copy.deepcopy(q.settings) if q.settings is not None else None,
+            )
+            self.question_repository.create(copied_question)
+
+        self.db.commit()
+        self.db.refresh(new_form)
+        new_form.response_count = 0
+        return new_form
 
     def publish_form(self, form_id: int) -> Form:
         form = self.get_form(form_id)

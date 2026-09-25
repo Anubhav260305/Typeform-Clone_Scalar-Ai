@@ -58,3 +58,16 @@ def unpublish_form(
     service: FormService = Depends(get_form_service),
 ) -> FormRead:
     return service.unpublish_form(form_id)
+
+
+@router.post(
+    "/{form_id}/duplicate",
+    response_model=FormRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def duplicate_form(
+    form_id: int,
+    service: FormService = Depends(get_form_service),
+) -> FormRead:
+    return service.duplicate_form(form_id)
+
